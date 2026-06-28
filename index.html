@@ -1,0 +1,247 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>THAB BBQ — TableFire Demo</title>
+<style>
+:root {
+  --fire: #E8440A; --ember: #FF6B35; --coal: #1A1208;
+  --ash: #2D2416; --smoke: #3D3428; --warm-white: #FBF5EC;
+  --cream: #F0E6D3; --gold: #C8943A;
+  --font-display: 'Georgia', serif;
+  --font-body: 'Segoe UI', system-ui, sans-serif;
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: var(--font-body); background: var(--coal); color: var(--warm-white); height: 100vh; overflow: hidden; display: flex; flex-direction: column; }
+#nav { background: var(--ash); border-bottom: 2px solid var(--fire); display: flex; align-items: center; padding: 0 20px; height: 56px; gap: 8px; flex-shrink: 0; }
+.logo { font-family: var(--font-display); font-size: 1.3rem; color: var(--ember); margin-right: 16px; letter-spacing: 1px; }
+.logo span { color: var(--warm-white); }
+.nav-btn { padding: 7px 16px; border-radius: 6px; border: 1.5px solid transparent; background: transparent; color: var(--cream); cursor: pointer; font-size: 0.85rem; font-weight: 600; transition: all 0.15s; }
+.nav-btn:hover { background: var(--smoke); }
+.nav-btn.active { background: var(--fire); border-color: var(--ember); color: #fff; }
+.nav-badge { display: inline-flex; align-items: center; justify-content: center; background: var(--ember); color: #fff; border-radius: 10px; font-size: 0.7rem; font-weight: 700; min-width: 18px; height: 18px; padding: 0 4px; margin-left: 4px; }
+.screen { display: none; flex: 1; overflow: hidden; }
+.screen.active { display: flex; }
+#screen-table { flex-direction: column; background: var(--coal); }
+.table-header { background: var(--ash); padding: 14px 20px; display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid var(--smoke); flex-shrink: 0; }
+.table-selector { display: flex; gap: 8px; align-items: center; }
+.table-selector label { font-size: 0.85rem; color: var(--gold); font-weight: 600; }
+.table-selector select { background: var(--smoke); border: 1px solid var(--gold); color: var(--warm-white); padding: 5px 10px; border-radius: 5px; font-size: 0.9rem; cursor: pointer; }
+.call-staff-btn { background: var(--gold); color: var(--coal); border: none; padding: 8px 18px; border-radius: 6px; font-weight: 700; font-size: 0.85rem; cursor: pointer; transition: background 0.15s; }
+.call-staff-btn:hover { background: #e0a840; }
+.menu-area { flex: 1; overflow: hidden; display: flex; }
+.menu-categories { width: 110px; background: var(--ash); overflow-y: auto; border-right: 1px solid var(--smoke); flex-shrink: 0; }
+.cat-btn { width: 100%; padding: 14px 10px; background: transparent; border: none; color: var(--cream); cursor: pointer; font-size: 0.78rem; font-weight: 600; border-left: 3px solid transparent; text-align: left; transition: all 0.12s; }
+.cat-btn:hover { background: var(--smoke); }
+.cat-btn.active { border-left-color: var(--fire); color: var(--ember); background: var(--smoke); }
+.menu-items { flex: 1; overflow-y: auto; padding: 14px; display: grid; grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); gap: 12px; align-content: start; }
+.menu-card { background: var(--ash); border-radius: 10px; padding: 14px; cursor: pointer; border: 1.5px solid var(--smoke); transition: all 0.15s; }
+.menu-card:hover { border-color: var(--ember); transform: translateY(-2px); }
+.menu-card .item-emoji { font-size: 1.8rem; margin-bottom: 6px; }
+.menu-card .item-type { font-size: 0.65rem; font-weight: 700; letter-spacing: 1px; text-transform: uppercase; margin-bottom: 4px; }
+.type-food { color: #E8973A; } .type-drink { color: #3AB8E8; }
+.menu-card .item-name { font-size: 0.88rem; font-weight: 600; color: var(--warm-white); margin-bottom: 3px; }
+.menu-card .item-desc { font-size: 0.72rem; color: #9e8f7a; margin-bottom: 8px; line-height: 1.3; }
+.menu-card .item-price { font-size: 0.95rem; font-weight: 700; color: var(--ember); }
+.cart-panel { width: 260px; background: var(--ash); border-left: 1px solid var(--smoke); display: flex; flex-direction: column; flex-shrink: 0; }
+.cart-title { padding: 14px 16px; font-weight: 700; font-size: 0.9rem; color: var(--gold); border-bottom: 1px solid var(--smoke); display: flex; justify-content: space-between; align-items: center; }
+.cart-items { flex: 1; overflow-y: auto; padding: 10px; }
+.cart-item { display: flex; align-items: center; gap: 8px; padding: 8px 6px; border-bottom: 1px solid var(--smoke); }
+.cart-item-name { flex: 1; font-size: 0.82rem; color: var(--cream); }
+.qty-btn { background: var(--smoke); border: none; color: var(--warm-white); width: 22px; height: 22px; border-radius: 4px; cursor: pointer; font-size: 0.9rem; display: flex; align-items: center; justify-content: center; }
+.qty-btn:hover { background: var(--fire); }
+.cart-item-qty { font-size: 0.85rem; font-weight: 700; min-width: 20px; text-align: center; }
+.cart-item-price { font-size: 0.8rem; color: var(--ember); font-weight: 600; min-width: 52px; text-align: right; }
+.cart-footer { padding: 14px 16px; border-top: 1px solid var(--smoke); }
+.cart-total { display: flex; justify-content: space-between; font-weight: 700; margin-bottom: 12px; }
+.cart-total span:last-child { color: var(--ember); font-size: 1.05rem; }
+.place-order-btn { width: 100%; background: var(--fire); border: none; color: #fff; padding: 12px; border-radius: 8px; font-size: 0.95rem; font-weight: 700; cursor: pointer; transition: background 0.15s; }
+.place-order-btn:hover { background: var(--ember); }
+.place-order-btn:disabled { background: #555; cursor: not-allowed; }
+#screen-kitchen { background: #0F1A0F; flex-direction: column; }
+.station-header { background: #162016; padding: 14px 20px; display: flex; align-items: center; justify-content: space-between; border-bottom: 2px solid #2ECC71; flex-shrink: 0; }
+.station-title { font-family: var(--font-display); font-size: 1.1rem; color: #2ECC71; }
+.station-clock { font-size: 0.8rem; color: #7fb87f; }
+.tickets-area { flex: 1; overflow-x: auto; overflow-y: hidden; display: flex; gap: 14px; padding: 16px; align-items: flex-start; }
+.ticket { background: #162016; border: 1.5px solid #2a4a2a; border-radius: 10px; width: 200px; flex-shrink: 0; display: flex; flex-direction: column; overflow: hidden; }
+.ticket.urgent { border-color: #E74C3C; animation: pulse-red 1.5s infinite; }
+@keyframes pulse-red { 0%,100%{box-shadow:0 0 0 0 rgba(231,76,60,0)} 50%{box-shadow:0 0 0 6px rgba(231,76,60,0.3)} }
+.ticket-head { background: #1e2e1e; padding: 10px 12px; display: flex; justify-content: space-between; align-items: center; }
+.ticket-table { font-weight: 700; font-size: 0.95rem; color: #2ECC71; }
+.ticket-time { font-size: 0.75rem; color: #7fb87f; }
+.ticket-items { padding: 10px 12px; flex: 1; }
+.ticket-line { font-size: 0.83rem; padding: 4px 0; border-bottom: 1px solid #1e2e1e; color: #cfe8cf; display: flex; gap: 6px; }
+.ticket-line .qty { font-weight: 700; color: #2ECC71; min-width: 20px; }
+.ticket-actions { padding: 10px 12px; }
+.bump-btn { width: 100%; padding: 8px; border-radius: 6px; border: none; font-weight: 700; font-size: 0.8rem; cursor: pointer; background: #2ECC71; color: #0F1A0F; }
+.bump-btn:hover { background: #27ae60; }
+.empty-station { display: flex; flex-direction: column; align-items: center; justify-content: center; flex: 1; color: #3a5a3a; gap: 10px; }
+.empty-station .big { font-size: 3rem; }
+#screen-bar { background: #0A0F1A; flex-direction: column; }
+.bar-header { background: #0F1525; padding: 14px 20px; border-bottom: 2px solid #3498DB; display: flex; align-items: center; justify-content: space-between; flex-shrink: 0; }
+.bar-title { font-family: var(--font-display); font-size: 1.1rem; color: #3498DB; }
+.bar-tickets-area { flex: 1; overflow-x: auto; overflow-y: hidden; display: flex; gap: 14px; padding: 16px; align-items: flex-start; }
+.bar-ticket { background: #0F1525; border: 1.5px solid #1a2a3a; border-radius: 10px; width: 200px; flex-shrink: 0; overflow: hidden; }
+.bar-ticket-head { background: #142035; padding: 10px 12px; display: flex; justify-content: space-between; align-items: center; }
+.bar-ticket-table { font-weight: 700; font-size: 0.95rem; color: #3498DB; }
+.bar-ticket-time { font-size: 0.75rem; color: #5a80a0; }
+.bar-ticket-items { padding: 10px 12px; }
+.bar-line { font-size: 0.83rem; padding: 4px 0; border-bottom: 1px solid #142035; color: #aac8e0; display: flex; gap: 6px; }
+.bar-line .qty { font-weight: 700; color: #3498DB; min-width: 20px; }
+.bar-ticket-actions { padding: 10px 12px; }
+.bar-bump { width: 100%; padding: 8px; border-radius: 6px; border: none; font-weight: 700; font-size: 0.8rem; cursor: pointer; background: #3498DB; color: #fff; }
+.bar-bump:hover { background: #2980b9; }
+.empty-bar { display: flex; flex-direction: column; align-items: center; justify-content: center; flex: 1; color: #1a2a3a; gap: 10px; }
+.empty-bar .big { font-size: 3rem; }
+#screen-staff { background: #1A0F08; flex-direction: column; }
+.staff-header { background: #251508; padding: 14px 20px; border-bottom: 2px solid var(--gold); display: flex; align-items: center; justify-content: space-between; flex-shrink: 0; }
+.staff-title { font-family: var(--font-display); font-size: 1.1rem; color: var(--gold); }
+.clear-btn { background: transparent; border: 1px solid var(--gold); color: var(--gold); padding: 5px 12px; border-radius: 5px; cursor: pointer; font-size: 0.8rem; font-weight: 600; }
+.clear-btn:hover { background: var(--gold); color: var(--coal); }
+.alerts-area { flex: 1; overflow-y: auto; padding: 16px; display: flex; flex-direction: column; gap: 10px; }
+.alert-card { background: #251508; border: 1.5px solid #4a3010; border-radius: 10px; padding: 14px 16px; display: flex; align-items: center; gap: 14px; animation: slide-in 0.25s ease; }
+@keyframes slide-in { from{transform:translateX(-20px);opacity:0} to{transform:translateX(0);opacity:1} }
+.alert-card.new { border-color: var(--gold); background: #2e1a05; }
+.alert-icon { font-size: 1.6rem; }
+.alert-body { flex: 1; }
+.alert-table { font-weight: 700; font-size: 1rem; color: var(--gold); }
+.alert-msg { font-size: 0.82rem; color: var(--cream); margin-top: 2px; }
+.alert-time { font-size: 0.75rem; color: #9e7a3a; margin-top: 3px; }
+.ack-btn { background: var(--gold); color: var(--coal); border: none; padding: 7px 14px; border-radius: 6px; font-weight: 700; font-size: 0.8rem; cursor: pointer; }
+.ack-btn:hover { background: #e0a840; }
+.empty-alerts { display: flex; flex-direction: column; align-items: center; justify-content: center; flex: 1; color: #4a3010; gap: 10px; }
+.empty-alerts .big { font-size: 3rem; }
+#toast-container { position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%); display: flex; flex-direction: column; gap: 8px; z-index: 999; pointer-events: none; }
+.toast { background: var(--ash); border: 1.5px solid var(--ember); color: var(--warm-white); padding: 10px 20px; border-radius: 8px; font-size: 0.85rem; font-weight: 600; animation: toast-in 0.3s ease, toast-out 0.3s ease 2.5s forwards; white-space: nowrap; }
+@keyframes toast-in { from{opacity:0;transform:translateY(10px)} to{opacity:1;transform:translateY(0)} }
+@keyframes toast-out { to{opacity:0;transform:translateY(10px)} }
+::-webkit-scrollbar { width: 4px; height: 4px; }
+::-webkit-scrollbar-thumb { background: var(--smoke); border-radius: 4px; }
+</style>
+</head>
+<body>
+<div id="nav">
+  <div class="logo">🔥 THAB <span>BBQ</span></div>
+  <button class="nav-btn active" onclick="showScreen('table',this)">🪑 Table Order</button>
+  <button class="nav-btn" onclick="showScreen('kitchen',this)">🍳 Kitchen <span class="nav-badge" id="badge-kitchen" style="display:none">0</span></button>
+  <button class="nav-btn" onclick="showScreen('bar',this)">🍺 Bar <span class="nav-badge" id="badge-bar" style="display:none">0</span></button>
+  <button class="nav-btn" onclick="showScreen('staff',this)">🔔 Staff <span class="nav-badge" id="badge-staff" style="display:none">0</span></button>
+</div>
+<div class="screen active" id="screen-table">
+  <div style="flex:1;display:flex;flex-direction:column;overflow:hidden;">
+    <div class="table-header">
+      <div class="table-selector"><label>TABLE</label>
+        <select id="table-select"><option>T-1</option><option>T-2</option><option>T-3</option><option>T-4</option><option>T-5</option><option>T-6</option><option>VIP-1</option><option>VIP-2</option></select>
+      </div>
+      <button class="call-staff-btn" onclick="callStaff()">🔔 Call Staff</button>
+    </div>
+    <div class="menu-area">
+      <div class="menu-categories" id="menu-cats"></div>
+      <div class="menu-items" id="menu-items"></div>
+      <div class="cart-panel">
+        <div class="cart-title">Your Order <span id="cart-count" style="font-size:0.75rem;color:#9e8f7a;">0 items</span></div>
+        <div class="cart-items" id="cart-items"><div style="text-align:center;padding:30px;color:#5a4a35;font-size:0.82rem;">Your order is empty</div></div>
+        <div class="cart-footer">
+          <div class="cart-total"><span>Total</span><span id="cart-total">Nu. 0</span></div>
+          <button class="place-order-btn" onclick="placeOrder()" id="place-btn" disabled>Place Order</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+<div class="screen" id="screen-kitchen">
+  <div class="station-header"><div class="station-title">🍳 Kitchen Station</div><div class="station-clock" id="kitchen-clock"></div></div>
+  <div class="tickets-area" id="kitchen-tickets"><div class="empty-station"><div class="big">✅</div><div>No pending orders</div></div></div>
+</div>
+<div class="screen" id="screen-bar">
+  <div class="bar-header"><div class="bar-title">🍺 Bar Station</div><div class="station-clock" id="bar-clock"></div></div>
+  <div class="bar-tickets-area" id="bar-tickets"><div class="empty-bar"><div class="big">🧊</div><div>No drink orders</div></div></div>
+</div>
+<div class="screen" id="screen-staff">
+  <div class="staff-header"><div class="staff-title">🔔 Staff Alerts</div><button class="clear-btn" onclick="clearAllAlerts()">Clear All</button></div>
+  <div class="alerts-area" id="alerts-area"><div class="empty-alerts"><div class="big">😌</div><div>All quiet — no alerts</div></div></div>
+</div>
+<div id="toast-container"></div>
+<script>
+const MENU=[
+  {id:1,name:'Ema Datshi',emoji:'🌶️',desc:'Chilli & cheese stew',price:150,cat:'Mains',type:'food'},
+  {id:2,name:'Phaksha Paa',emoji:'🥩',desc:'Pork with red chillies',price:220,cat:'Mains',type:'food'},
+  {id:3,name:'Jasha Maroo',emoji:'🍗',desc:'Spiced minced chicken',price:200,cat:'Mains',type:'food'},
+  {id:4,name:'Shakam Datshi',emoji:'🥩',desc:'Dried beef & cheese',price:240,cat:'Mains',type:'food'},
+  {id:5,name:'Beef Momos',emoji:'🥟',desc:'Steamed dumplings (8 pcs)',price:120,cat:'Starters',type:'food'},
+  {id:6,name:'Veg Momos',emoji:'🥟',desc:'Vegetable dumplings (8 pcs)',price:90,cat:'Starters',type:'food'},
+  {id:7,name:'Suja Soup',emoji:'🍲',desc:'Traditional butter tea soup',price:80,cat:'Starters',type:'food'},
+  {id:8,name:'Red Rice',emoji:'🍚',desc:'Bhutanese red rice',price:60,cat:'Sides',type:'food'},
+  {id:9,name:'Kewa Datshi',emoji:'🥔',desc:'Potato & cheese',price:130,cat:'Sides',type:'food'},
+  {id:10,name:'Nakey',emoji:'🥦',desc:'Fiddlehead fern stir-fry',price:100,cat:'Sides',type:'food'},
+  {id:11,name:'Wagyu Beef',emoji:'🥩',desc:'Premium grilled 150g',price:580,cat:'Grill',type:'food'},
+  {id:12,name:'Pork Belly',emoji:'🥓',desc:'Grilled samgyeopsal',price:320,cat:'Grill',type:'food'},
+  {id:13,name:'Chicken Wings',emoji:'🍗',desc:'Marinated BBQ wings',price:280,cat:'Grill',type:'food'},
+  {id:14,name:'Druk 11000',emoji:'🍺',desc:'Bhutan premium lager',price:100,cat:'Beer',type:'drink'},
+  {id:15,name:'Red Panda',emoji:'🍺',desc:'Bhutan craft beer',price:120,cat:'Beer',type:'drink'},
+  {id:16,name:'Heineken',emoji:'🍺',desc:'330ml imported',price:150,cat:'Beer',type:'drink'},
+  {id:17,name:'Ara Spirit',emoji:'🥃',desc:'Traditional rice spirit',price:80,cat:'Spirits',type:'drink'},
+  {id:18,name:'Single Malt',emoji:'🥃',desc:'Scotch whisky 30ml',price:350,cat:'Spirits',type:'drink'},
+  {id:19,name:'Butter Tea',emoji:'☕',desc:'Traditional suja',price:40,cat:'Hot Drinks',type:'drink'},
+  {id:20,name:'Ngaja',emoji:'☕',desc:'Milk tea Bhutanese style',price:35,cat:'Hot Drinks',type:'drink'},
+  {id:21,name:'Lemon Mint',emoji:'🍋',desc:'Fresh squeezed',price:60,cat:'Soft Drinks',type:'drink'},
+  {id:22,name:'Mango Lassi',emoji:'🥭',desc:'Chilled yogurt drink',price:70,cat:'Soft Drinks',type:'drink'},
+];
+const CATS=[...new Set(MENU.map(i=>i.cat))];
+let activeCat=CATS[0],cart={},kitchenTickets=[],barTickets=[],staffAlerts=[],orderCounter=1;
+function buildMenu(){
+  document.getElementById('menu-cats').innerHTML=CATS.map(c=>`<button class="cat-btn${c===activeCat?' active':''}" onclick="setCat('${c}')">${c}</button>`).join('');
+  document.getElementById('menu-items').innerHTML=MENU.filter(i=>i.cat===activeCat).map(i=>`<div class="menu-card" onclick="addToCart(${i.id})"><div class="item-emoji">${i.emoji}</div><div class="item-type type-${i.type}">${i.type==='food'?'● FOOD':'● DRINK'}</div><div class="item-name">${i.name}</div><div class="item-desc">${i.desc}</div><div class="item-price">Nu. ${i.price}</div></div>`).join('');
+}
+function setCat(c){activeCat=c;buildMenu();}
+function addToCart(id){cart[id]=(cart[id]||0)+1;renderCart();showToast('Added ✓');}
+function changeQty(id,d){cart[id]=(cart[id]||0)+d;if(cart[id]<=0)delete cart[id];renderCart();}
+function renderCart(){
+  const ids=Object.keys(cart);
+  const n=ids.reduce((s,id)=>s+cart[id],0);
+  document.getElementById('cart-count').textContent=`${n} item${n!==1?'s':''}`;
+  if(!ids.length){document.getElementById('cart-items').innerHTML='<div style="text-align:center;padding:30px;color:#5a4a35;font-size:0.82rem;">Your order is empty</div>';document.getElementById('cart-total').textContent='Nu. 0';document.getElementById('place-btn').disabled=true;return;}
+  let total=0;
+  document.getElementById('cart-items').innerHTML=ids.map(id=>{const it=MENU.find(i=>i.id==id);const sub=it.price*cart[id];total+=sub;return`<div class="cart-item"><div class="cart-item-name">${it.emoji} ${it.name}</div><button class="qty-btn" onclick="changeQty(${id},-1)">−</button><div class="cart-item-qty">${cart[id]}</div><button class="qty-btn" onclick="changeQty(${id},1)">+</button><div class="cart-item-price">Nu.${sub}</div></div>`;}).join('');
+  document.getElementById('cart-total').textContent=`Nu. ${total}`;
+  document.getElementById('place-btn').disabled=false;
+}
+function placeOrder(){
+  const table=document.getElementById('table-select').value;
+  const ids=Object.keys(cart);if(!ids.length)return;
+  const food=ids.filter(id=>MENU.find(i=>i.id==id).type==='food').map(id=>({...MENU.find(i=>i.id==id),qty:cart[id]}));
+  const drink=ids.filter(id=>MENU.find(i=>i.id==id).type==='drink').map(id=>({...MENU.find(i=>i.id==id),qty:cart[id]}));
+  const oid=`#${String(orderCounter++).padStart(3,'0')}`;
+  const t=new Date().toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'});
+  if(food.length){kitchenTickets.push({id:oid+'K',table,items:food,time:t,ts:Date.now()});renderKitchen();}
+  if(drink.length){barTickets.push({id:oid+'B',table,items:drink,time:t,ts:Date.now()});renderBar();}
+  updateBadges();showToast('✅ Order sent!');cart={};renderCart();
+}
+function renderKitchen(){
+  const el=document.getElementById('kitchen-tickets');
+  if(!kitchenTickets.length){el.innerHTML='<div class="empty-station"><div class="big">✅</div><div>No pending orders</div></div>';return;}
+  el.innerHTML=kitchenTickets.map((t,idx)=>{const age=Math.floor((Date.now()-t.ts)/60000);const u=age>=8;return`<div class="ticket${u?' urgent':''}"><div class="ticket-head"><div class="ticket-table">${t.table}</div><div class="ticket-time">⏱ ${t.time}${u?' ⚠️':''}</div></div><div class="ticket-items">${t.items.map(i=>`<div class="ticket-line"><span class="qty">${i.qty}×</span>${i.name}</div>`).join('')}</div><div class="ticket-actions"><button class="bump-btn" onclick="bumpKitchen(${idx})">BUMP ✓</button></div></div>`;}).join('');
+}
+function bumpKitchen(idx){const t=kitchenTickets.splice(idx,1)[0];addAlert(t.table,'🍽️ Food ready — please serve','🍳');showToast(`✅ ${t.table} done!`);renderKitchen();updateBadges();}
+function renderBar(){
+  const el=document.getElementById('bar-tickets');
+  if(!barTickets.length){el.innerHTML='<div class="empty-bar"><div class="big">🧊</div><div>No drink orders</div></div>';return;}
+  el.innerHTML=barTickets.map((t,idx)=>`<div class="bar-ticket"><div class="bar-ticket-head"><div class="bar-ticket-table">${t.table}</div><div class="bar-ticket-time">⏱ ${t.time}</div></div><div class="bar-ticket-items">${t.items.map(i=>`<div class="bar-line"><span class="qty">${i.qty}×</span>${i.name}</div>`).join('')}</div><div class="bar-ticket-actions"><button class="bar-bump" onclick="bumpBar(${idx})">READY ✓</button></div></div>`).join('');
+}
+function bumpBar(idx){const t=barTickets.splice(idx,1)[0];addAlert(t.table,'🍺 Drinks ready — please serve','🍺');showToast(`🍺 ${t.table} ready!`);renderBar();updateBadges();}
+function callStaff(){const table=document.getElementById('table-select').value;addAlert(table,'👋 Guest calling for assistance','🔔');showToast('🔔 Staff called!');}
+function addAlert(table,msg,icon){const now=new Date().toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'});const a={table,msg,icon,time:now,id:Date.now(),isNew:true};staffAlerts.unshift(a);setTimeout(()=>{a.isNew=false;renderAlerts();},3000);renderAlerts();updateBadges();}
+function renderAlerts(){const el=document.getElementById('alerts-area');if(!staffAlerts.length){el.innerHTML='<div class="empty-alerts"><div class="big">😌</div><div>All quiet</div></div>';return;}el.innerHTML=staffAlerts.map((a,idx)=>`<div class="alert-card${a.isNew?' new':''}"><div class="alert-icon">${a.icon}</div><div class="alert-body"><div class="alert-table">${a.table}</div><div class="alert-msg">${a.msg}</div><div class="alert-time">${a.time}</div></div><button class="ack-btn" onclick="ackAlert(${idx})">✓ Done</button></div>`).join('');}
+function ackAlert(idx){staffAlerts.splice(idx,1);renderAlerts();updateBadges();}
+function clearAllAlerts(){staffAlerts=[];renderAlerts();updateBadges();}
+function updateBadges(){[['kitchen',kitchenTickets],['bar',barTickets],['staff',staffAlerts]].forEach(([k,a])=>{const el=document.getElementById('badge-'+k);el.textContent=a.length;el.style.display=a.length?'inline-flex':'none';});}
+function showScreen(name,btn){document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));document.querySelectorAll('.nav-btn').forEach(b=>b.classList.remove('active'));document.getElementById('screen-'+name).classList.add('active');btn.classList.add('active');}
+function tick(){const t=new Date().toLocaleTimeString();['kitchen-clock','bar-clock'].forEach(id=>{const e=document.getElementById(id);if(e)e.textContent=t;});}
+function showToast(msg){const c=document.getElementById('toast-container');const el=document.createElement('div');el.className='toast';el.textContent=msg;c.appendChild(el);setTimeout(()=>el.remove(),3000);}
+buildMenu();renderCart();updateBadges();tick();
+setInterval(tick,1000);
+setInterval(()=>{if(kitchenTickets.length)renderKitchen();},30000);
+</script>
+</body>
+</html>
